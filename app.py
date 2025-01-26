@@ -7,7 +7,7 @@ from sklearn.ensemble import RandomForestClassifier
 from joblib import load
 
 # Cargar el modelo entrenado
-model = load('models/heartDisease-model.pck')
+model = load('heartDisease-model.pck')
 
 # Función para preprocesar los datos de entrada
 def preprocess_data(input_data):
