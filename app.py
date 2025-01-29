@@ -2,6 +2,7 @@ import streamlit as st
 import pickle
 import numpy as np
 import pandas as pd
+from sklearn.preprocessing import StandardScaler
 
 # Definir las columnas categóricas y numéricas (de acuerdo con la preparación de datos)
 num_cols = ['trestbps', 'chol', 'thalch', 'oldpeak', 'ca', 'age']
@@ -9,7 +10,7 @@ cat_cols = ['sex', 'cp', 'thal', 'slope', 'restecg', 'fbs', 'exang']
 
 # Cargar el modelo y el vectorizador
 with open('heartDisease-model.pck', 'rb') as f:
-    dv, svm_model = pickle.load(f)
+    dv, svm_model, scaler = pickle.load(f)
 
 # Título de la aplicación
 st.title('Predicción de Enfermedad Cardíaca')
@@ -73,19 +74,24 @@ else:
     # Si no faltan columnas, aseguramos que se mantengan en el orden correcto
     input_df = input_df[cat_cols + num_cols]
 
-    # Transformar los datos usando el vectorizador
-    input_dict = input_df.to_dict(orient='records')
-    input_transformed = dv.transform(input_dict)
+    # Normalizar los datos de entrada de la misma manera que en el entrenamiento
+    input_df[num_cols] = scaler.transform(input_df[num_cols])
 
-    # Realizar la predicción
-    prediction = svm_model.predict(input_transformed)
-    probability = svm_model.predict_proba(input_transformed)
+    # Botón para actualizar y hacer la predicción
+    if st.button('Realizar Predicción'):
+        # Transformar los datos usando el vectorizador
+        input_dict = input_df.to_dict(orient='records')
+        input_transformed = dv.transform(input_dict)
 
-    # Mostrar el resultado
-    if prediction[0] == 1:
-        st.write("**Resultado**: El paciente tiene alta probabilidad de enfermedad cardíaca.")
-    else:
-        st.write("**Resultado**: El paciente tiene baja probabilidad de enfermedad cardíaca.")
+        # Realizar la predicción
+        prediction = svm_model.predict(input_transformed)
+        probability = svm_model.predict_proba(input_transformed)
 
-    # Mostrar la probabilidad (si se seleccionó 'probability=True' en el modelo SVM)
-    st.write(f"Probabilidad de enfermedad cardíaca: {probability[0][1]:.2f}")
+        # Mostrar el resultado
+        if prediction[0] == 1:
+            st.write("**Resultado**: El paciente tiene alta probabilidad de enfermedad cardíaca.")
+        else:
+            st.write("**Resultado**: El paciente tiene baja probabilidad de enfermedad cardíaca.")
+
+        # Mostrar la probabilidad (si se seleccionó 'probability=True' en el modelo SVM)
+        st.write(f"Probabilidad de enfermedad cardíaca: {probability[0][1]:.2f}")
