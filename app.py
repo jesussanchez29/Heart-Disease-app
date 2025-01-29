@@ -8,7 +8,7 @@ num_cols = ['trestbps', 'chol', 'thalch', 'oldpeak', 'ca', 'age']
 cat_cols = ['sex', 'cp', 'thal', 'slope', 'restecg', 'fbs', 'exang']
 
 # Cargar el modelo y el vectorizador
-with open('heartDisease-model.pck', 'rb') as f:
+with open('models/heartDisease-model.pck', 'rb') as f:
     dv, svm_model = pickle.load(f)
 
 # Título de la aplicación
@@ -34,6 +34,11 @@ restecg = st.selectbox('Electrocardiografía en reposo', options=[0, 1, 2], form
 fbs = st.selectbox('Glucosa en ayunas mayor a 120 mg/dl', options=[0, 1], format_func=lambda x: 'Sí' if x == 1 else 'No')
 exang = st.selectbox('Angina inducida por ejercicio', options=[0, 1], format_func=lambda x: 'Sí' if x == 1 else 'No')
 
+# Campos faltantes que causaron el error
+thal = st.selectbox('Defecto del talio', options=[1, 2, 3], format_func=lambda x: {1: 'Normal', 2: 'Defecto de talio fijo', 3: 'Defecto de talio reversible'}[x])
+trestbps = st.number_input('Presión arterial en reposo (mm Hg)', min_value=90, max_value=200, value=130)
+thalch = st.number_input('Frecuencia cardiaca máxima alcanzada (bpm)', min_value=50, max_value=250, value=150)
+
 # Crear un diccionario con los datos ingresados
 input_data = {
     'age': age,
@@ -46,7 +51,10 @@ input_data = {
     'slope': slope,
     'restecg': restecg,
     'fbs': fbs,
-    'exang': exang
+    'exang': exang,
+    'thal': thal,
+    'trestbps': trestbps,
+    'thalch': thalch
 }
 
 # Convertir el diccionario a un DataFrame
