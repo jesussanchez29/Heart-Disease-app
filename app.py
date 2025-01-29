@@ -57,21 +57,27 @@ st.write("Columnas del DataFrame de entrada:")
 st.write(input_df.columns)
 
 # Asegurarse de que solo contenga las columnas correctas
-input_df = input_df[cat_cols + num_cols]
-
-# Transformar los datos usando el vectorizador
-input_dict = input_df.to_dict(orient='records')
-input_transformed = dv.transform(input_dict)
-
-# Realizar la predicción
-prediction = svm_model.predict(input_transformed)
-probability = svm_model.predict_proba(input_transformed)
-
-# Mostrar el resultado
-if prediction[0] == 1:
-    st.write("**Resultado**: El paciente tiene alta probabilidad de enfermedad cardíaca.")
+# Comprobamos si las columnas en cat_cols + num_cols están en el DataFrame
+missing_cols = [col for col in cat_cols + num_cols if col not in input_df.columns]
+if missing_cols:
+    st.error(f"Faltan las siguientes columnas: {missing_cols}")
 else:
-    st.write("**Resultado**: El paciente tiene baja probabilidad de enfermedad cardíaca.")
+    # Si no faltan columnas, aseguramos que se mantengan en el orden correcto
+    input_df = input_df[cat_cols + num_cols]
 
-# Mostrar la probabilidad (si se seleccionó 'probability=True' en el modelo SVM)
-st.write(f"Probabilidad de enfermedad cardíaca: {probability[0][1]:.2f}")
+    # Transformar los datos usando el vectorizador
+    input_dict = input_df.to_dict(orient='records')
+    input_transformed = dv.transform(input_dict)
+
+    # Realizar la predicción
+    prediction = svm_model.predict(input_transformed)
+    probability = svm_model.predict_proba(input_transformed)
+
+    # Mostrar el resultado
+    if prediction[0] == 1:
+        st.write("**Resultado**: El paciente tiene alta probabilidad de enfermedad cardíaca.")
+    else:
+        st.write("**Resultado**: El paciente tiene baja probabilidad de enfermedad cardíaca.")
+
+    # Mostrar la probabilidad (si se seleccionó 'probability=True' en el modelo SVM)
+    st.write(f"Probabilidad de enfermedad cardíaca: {probability[0][1]:.2f}")
