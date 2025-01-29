@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 # Cargar el modelo y el vectorizador
-with open('models/heartDisease-model.pck', 'rb') as f:
+with open('heartDisease-model.pck', 'rb') as f:
     dv, svm_model = pickle.load(f)
 
 # Título de la aplicación
