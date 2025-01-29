@@ -52,8 +52,15 @@ input_data = {
 # Convertir el diccionario a un DataFrame
 input_df = pd.DataFrame([input_data])
 
+# Verificar las columnas de input_df
+st.write("Columnas del DataFrame de entrada:")
+st.write(input_df.columns)
+
+# Asegurarse de que solo contenga las columnas correctas
+input_df = input_df[cat_cols + num_cols]
+
 # Transformar los datos usando el vectorizador
-input_dict = input_df[cat_cols + num_cols].to_dict(orient='records')
+input_dict = input_df.to_dict(orient='records')
 input_transformed = dv.transform(input_dict)
 
 # Realizar la predicción
