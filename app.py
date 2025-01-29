@@ -8,9 +8,9 @@ from sklearn.preprocessing import StandardScaler
 num_cols = ['trestbps', 'chol', 'thalch', 'oldpeak', 'ca', 'age']
 cat_cols = ['sex', 'cp', 'thal', 'slope', 'restecg', 'fbs', 'exang']
 
-# Cargar el modelo y el vectorizador
-with open('heartDisease-model.pck', 'rb') as f:
-    dv, svm_model, scaler = pickle.load(f)
+# Serialización del modelo, el vectorizador y el scaler
+with open('heartDisease-model.pck', 'wb') as f:
+    pickle.dump((dv, svm_model, scaler), f)
 
 # Título de la aplicación
 st.title('Predicción de Enfermedad Cardíaca')
