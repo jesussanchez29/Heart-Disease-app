@@ -3,8 +3,12 @@ import pickle
 import numpy as np
 import pandas as pd
 
+# Definir las columnas categóricas y numéricas (de acuerdo con la preparación de datos)
+num_cols = ['trestbps', 'chol', 'thalch', 'oldpeak', 'ca', 'age']
+cat_cols = ['sex', 'cp', 'thal', 'slope', 'restecg', 'fbs', 'exang']
+
 # Cargar el modelo y el vectorizador
-with open('heartDisease-model.pck', 'rb') as f:
+with open('models/heartDisease-model.pck', 'rb') as f:
     dv, svm_model = pickle.load(f)
 
 # Título de la aplicación
