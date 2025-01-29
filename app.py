@@ -3,7 +3,7 @@ import pickle
 import numpy as np
 
 # Cargar el modelo entrenado
-with open("heartDisease-model.pkl", "rb") as f:
+with open("heartDisease-model.pck", "rb") as f:
     model = pickle.load(f)
 
 # Función para interpretar la predicción
