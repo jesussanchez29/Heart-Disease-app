@@ -8,7 +8,7 @@ num_cols = ['trestbps', 'chol', 'thalch', 'oldpeak', 'ca', 'age']
 cat_cols = ['sex', 'cp', 'thal', 'slope', 'restecg', 'fbs', 'exang']
 
 # Cargar el modelo y el vectorizador
-with open('models/heartDisease-model.pck', 'rb') as f:
+with open('heartDisease-model.pck', 'rb') as f:
     dv, svm_model = pickle.load(f)
 
 # Título de la aplicación
