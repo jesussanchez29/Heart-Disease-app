@@ -57,7 +57,7 @@ if st.button('Hacer Predicción'):
 
     # Realizar la predicción
     y_pred_proba = model.predict_proba(X_new)[0][1]  # Probabilidad de enfermedad cardíaca
-
+    print(model.predict_proba(X_new)[0])
     # Mostrar el resultado de la predicción
     if y_pred_proba > 0.5:
         st.write("La persona tiene enfermedad cardíaca.")
