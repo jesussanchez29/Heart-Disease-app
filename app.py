@@ -55,14 +55,23 @@ if st.button('Hacer Predicción'):
     num_indices = [i for i, name in enumerate(dv.get_feature_names_out()) if name in num_cols]  # Índices de las características numéricas
     X_new[:, num_indices] = scaler.transform(X_new[:, num_indices])  # Escalar las características numéricas
 
-    # Realizar la predicción
-    y_pred_proba = model.predict_proba(X_new)[0][1]  # Probabilidad de enfermedad cardíaca
-    # Mostrar el resultado de la predicción
-    st.write(model.predict_proba(X_new)[0])
-    if y_pred_proba > 0.5:
-        st.write("La persona tiene enfermedad cardíaca.")
-    else:
-        st.write("La persona no tiene enfermedad cardíaca.")
+# Obtener las probabilidades de cada clase
+y_pred_proba = model.predict_proba(X_new)[0]
 
-    # Mostrar la probabilidad de enfermedad
-    st.write(f"Probabilidad de tener enfermedad: {y_pred_proba:.2f}")
+# Mostrar todas las probabilidades en Streamlit
+st.write("Probabilidades por clase:", y_pred_proba)
+
+# Determinar la clase con la mayor probabilidad
+predicted_class = np.argmax(y_pred_proba)  # Índice de la clase con mayor probabilidad
+
+# Definir un diccionario para interpretar el resultado
+class_labels = {
+    0: "Sin enfermedad cardíaca",
+    1: "Enfermedad cardíaca tipo 1",
+    2: "Enfermedad cardíaca tipo 2",
+    3: "Enfermedad cardíaca tipo 3",
+    4: "Enfermedad cardíaca tipo 4"
+}
+
+# Mostrar el resultado en la interfaz
+st.write(f"Predicción del modelo: {class_labels[predicted_class]}")
