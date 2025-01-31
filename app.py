@@ -1,51 +1,82 @@
 import streamlit as st
 import pickle
-import numpy as np
+import pandas as pd
+
+# Título de la aplicación
+st.title("Predicción de Severidad de Enfermedad Cardíaca")
+
+# Subtítulo
+st.markdown("""
+Esta aplicación predice la severidad de la enfermedad cardíaca (0 a 4) basada en los datos ingresados.
+""")
 
 # Cargar el modelo y el vectorizador
 with open('heartDisease-model.pck', 'rb') as f:
     dv, model = pickle.load(f)
 
-st.title("Predicción de Enfermedades Cardíacas")
-st.write("Ingrese los datos del paciente para predecir la probabilidad de enfermedad cardíaca.")
+# Función para realizar la predicción
+def predict_heart_disease(input_data):
+    # Convertir el diccionario de entrada en un DataFrame
+    input_df = pd.DataFrame([input_data])
+    # Vectorizar los datos de entrada
+    input_dict = input_df.to_dict(orient='records')
+    input_vector = dv.transform(input_dict)
+    # Realizar la predicción
+    prediction = model.predict(input_vector)
+    return prediction[0]
 
-# Crear inputs para las variables
-age = st.number_input("Edad", min_value=1, max_value=120, value=50)
-trestbps = st.number_input("Presión arterial en reposo (mm Hg)", min_value=50, max_value=250, value=120)
-chol = st.number_input("Colesterol sérico (mg/dl)", min_value=100, max_value=600, value=200)
-thalach = st.number_input("Frecuencia cardíaca máxima alcanzada", min_value=60, max_value=250, value=150)
-oldpeak = st.number_input("Depresión ST inducida por el ejercicio", min_value=0.0, max_value=6.0, value=1.0, step=0.1)
-ca = st.number_input("Número de vasos coloreados por fluoroscopía", min_value=0, max_value=4, value=0)
+# Crear un formulario para ingresar los datos
+with st.form("input_form"):
+    st.header("Ingrese los datos del paciente")
 
-sex = st.selectbox("Sexo", ["0 (Femenino)", "1 (Masculino)"])
-cp = st.selectbox("Tipo de dolor torácico", ["0", "1", "2", "3"])
-thall = st.selectbox("Thal", ["1", "2", "3"])
-slope = st.selectbox("Pendiente del segmento ST", ["0", "1", "2"])
-restecg = st.selectbox("Electrocardiograma en reposo", ["0", "1", "2"])
-fbs = st.selectbox("Azúcar en sangre en ayunas > 120 mg/dl", ["0", "1"])
-exang = st.selectbox("Angina inducida por ejercicio", ["0", "1"])
+    # Campos de entrada para las características
+    age = st.number_input("Edad", min_value=0, max_value=120, value=50)
+    sex = st.selectbox("Sexo", options=[0, 1], format_func=lambda x: "Mujer" if x == 0 else "Hombre")
+    cp = st.selectbox("Tipo de dolor en el pecho (cp)", options=[0, 1, 2, 3])
+    trestbps = st.number_input("Presión arterial en reposo (trestbps)", min_value=0, max_value=200, value=120)
+    chol = st.number_input("Colesterol sérico (chol)", min_value=0, max_value=600, value=200)
+    fbs = st.selectbox("Azúcar en sangre en ayunas > 120 mg/dl (fbs)", options=[0, 1])
+    restecg = st.selectbox("Resultados electrocardiográficos en reposo (restecg)", options=[0, 1, 2])
+    thalch = st.number_input("Frecuencia cardíaca máxima alcanzada (thalch)", min_value=0, max_value=250, value=150)
+    exang = st.selectbox("Angina inducida por ejercicio (exang)", options=[0, 1])
+    oldpeak = st.number_input("Depresión del ST inducida por ejercicio (oldpeak)", min_value=0.0, max_value=10.0, value=1.0)
+    slope = st.selectbox("Pendiente del segmento ST (slope)", options=[0, 1, 2])
+    ca = st.number_input("Número de vasos principales coloreados por fluoroscopia (ca)", min_value=0, max_value=3, value=0)
+    thal = st.selectbox("Thal", options=[0, 1, 2, 3])
 
-# Crear diccionario con los valores ingresados
-data = {
-    "age": age,
-    "trestbps": trestbps,
-    "chol": chol,
-    "thalch": thalach,
-    "oldpeak": oldpeak,
-    "ca": ca,
-    "sex": int(sex[0]),
-    "cp": int(cp[0]),
-    "thal": int(thall[0]),
-    "slope": int(slope[0]),
-    "restecg": int(restecg[0]),
-    "fbs": int(fbs[0]),
-    "exang": int(exang[0])
-}
+    # Botón para realizar la predicción
+    submitted = st.form_submit_button("Predecir Severidad")
 
-# Transformar los datos usando el vectorizador
-data_transformed = dv.transform([data])
+    # Si se presiona el botón, realizar la predicción
+    if submitted:
+        # Crear un diccionario con los datos ingresados
+        input_data = {
+            'age': age,
+            'sex': sex,
+            'cp': cp,
+            'trestbps': trestbps,
+            'chol': chol,
+            'fbs': fbs,
+            'restecg': restecg,
+            'thalch': thalch,
+            'exang': exang,
+            'oldpeak': oldpeak,
+            'slope': slope,
+            'ca': ca,
+            'thal': thal
+        }
 
-# Predecir cuando el usuario presione el botón
-if st.button("Predecir"):
-    prediction = model.predict([data_transformed[0]])[0]
-    st.write(f"Predicción de enfermedad cardíaca: {prediction}")
+        # Realizar la predicción
+        prediction = predict_heart_disease(input_data)
+
+        # Mostrar el resultado
+        st.subheader("Resultado de la Predicción")
+        st.write(f"La severidad predicha de la enfermedad cardíaca es: **{prediction}**")
+        st.markdown("""
+        **Nota:** La severidad varía de 0 a 4, donde:
+        - 0: Sin enfermedad
+        - 1: Enfermedad leve
+        - 2: Enfermedad moderada
+        - 3: Enfermedad grave
+        - 4: Enfermedad muy grave
+        """)
