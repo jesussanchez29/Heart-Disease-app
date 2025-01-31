@@ -51,16 +51,15 @@ if st.button('Hacer Predicción'):
     # Transformar los datos de entrada utilizando el DictVectorizer
     X_new = dv.transform([input_data])
 
-
-    
-    # Realizar la predicción
-    y_pred_proba = model.predict_proba(X_new)[0][1]  # Probabilidad de churn
+    # Realizar la predicción (probabilidad de tener enfermedad cardíaca)
+    y_pred_proba = model.predict_proba(X_new)[0][1]  # Probabilidad de tener enfermedad (clase 1)
 
     # Mostrar el resultado de la predicción
-    if y_pred_proba == 0:
-        st.write("La persona no tiene enfermedad cardíaca.")
-    else:
+    if y_pred_proba >= 0.5:
         st.write("La persona tiene enfermedad cardíaca.")
+    else:
+        st.write("La persona no tiene enfermedad cardíaca.")
 
     # Mostrar las probabilidades de cada clase
-    st.write(f"Probabilidad de no tener enfermedad: {y_pred_proba:.2f}")
+    st.write(f"Probabilidad de tener enfermedad: {y_pred_proba:.2f}")
+    st.write(f"Probabilidad de no tener enfermedad: {1 - y_pred_proba:.2f}")
