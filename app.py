@@ -1,97 +1,51 @@
 import streamlit as st
 import pickle
 import numpy as np
-import pandas as pd
-from sklearn.preprocessing import StandardScaler
 
-# Definir las columnas categóricas y numéricas (de acuerdo con la preparación de datos)
-num_cols = ['trestbps', 'chol', 'thalch', 'oldpeak', 'ca', 'age']
-cat_cols = ['sex', 'cp', 'thal', 'slope', 'restecg', 'fbs', 'exang']
+# Cargar el modelo y el vectorizador
+with open('heartDisease-model.pck', 'rb') as f:
+    dv, model = pickle.load(f)
 
-# Serialización del modelo, el vectorizador y el scaler
-with open('heartDisease-model.pck', 'wb') as f:
-    pickle.dump((dv, svm_model, scaler), f)
+st.title("Predicción de Enfermedades Cardíacas")
+st.write("Ingrese los datos del paciente para predecir la probabilidad de enfermedad cardíaca.")
 
-# Título de la aplicación
-st.title('Predicción de Enfermedad Cardíaca')
+# Crear inputs para las variables
+age = st.number_input("Edad", min_value=1, max_value=120, value=50)
+trestbps = st.number_input("Presión arterial en reposo (mm Hg)", min_value=50, max_value=250, value=120)
+chol = st.number_input("Colesterol sérico (mg/dl)", min_value=100, max_value=600, value=200)
+thalach = st.number_input("Frecuencia cardíaca máxima alcanzada", min_value=60, max_value=250, value=150)
+oldpeak = st.number_input("Depresión ST inducida por el ejercicio", min_value=0.0, max_value=6.0, value=1.0, step=0.1)
+ca = st.number_input("Número de vasos coloreados por fluoroscopía", min_value=0, max_value=4, value=0)
 
-# Instrucciones
-st.write("""
-Este modelo predice la presencia de enfermedad cardíaca en pacientes
-utilizando características como la edad, colesterol, presión arterial, etc.
-Por favor, ingresa los valores para hacer una predicción.
-""")
+sex = st.selectbox("Sexo", ["0 (Femenino)", "1 (Masculino)"])
+cp = st.selectbox("Tipo de dolor torácico", ["0", "1", "2", "3"])
+thall = st.selectbox("Thal", ["1", "2", "3"])
+slope = st.selectbox("Pendiente del segmento ST", ["0", "1", "2"])
+restecg = st.selectbox("Electrocardiograma en reposo", ["0", "1", "2"])
+fbs = st.selectbox("Azúcar en sangre en ayunas > 120 mg/dl", ["0", "1"])
+exang = st.selectbox("Angina inducida por ejercicio", ["0", "1"])
 
-# Ingresar datos del paciente
-age = st.number_input('Edad', min_value=1, max_value=100, value=60)
-sex = st.selectbox('Sexo', options=[0, 1], format_func=lambda x: 'Masculino' if x == 1 else 'Femenino')
-cp = st.selectbox('Tipo de dolor torácico', options=[0, 1, 2, 3], format_func=lambda x: {0: 'Angina típica', 1: 'Angina atípica', 2: 'Dolor no anginoso', 3: 'Asintomático'}[x])
-chol = st.number_input('Colesterol en mg/dl', min_value=1, max_value=500, value=200)
-thalach = st.number_input('Frecuencia cardiaca máxima alcanzada', min_value=50, max_value=250, value=150)
-oldpeak = st.number_input('Depresión del ST inducida por el ejercicio', min_value=0.0, max_value=6.0, value=1.0)
-ca = st.selectbox('Número de vasos principales (0-3)', options=[0, 1, 2, 3])
-slope = st.selectbox('Pendiente del segmento ST', options=[0, 1, 2], format_func=lambda x: {0: 'Ascendente', 1: 'Horizontal', 2: 'Descendente'}[x])
-restecg = st.selectbox('Electrocardiografía en reposo', options=[0, 1, 2], format_func=lambda x: {0: 'Normal', 1: 'Anomalía de onda ST', 2: 'Hipertrofia ventrículo izquierdo'}[x])
-fbs = st.selectbox('Glucosa en ayunas mayor a 120 mg/dl', options=[0, 1], format_func=lambda x: 'Sí' if x == 1 else 'No')
-exang = st.selectbox('Angina inducida por ejercicio', options=[0, 1], format_func=lambda x: 'Sí' if x == 1 else 'No')
-
-# Campos faltantes que causaron el error
-thal = st.selectbox('Defecto del talio', options=[1, 2, 3], format_func=lambda x: {1: 'Normal', 2: 'Defecto de talio fijo', 3: 'Defecto de talio reversible'}[x])
-trestbps = st.number_input('Presión arterial en reposo (mm Hg)', min_value=90, max_value=200, value=130)
-thalch = st.number_input('Frecuencia cardiaca máxima alcanzada (bpm)', min_value=50, max_value=250, value=150)
-
-# Crear un diccionario con los datos ingresados
-input_data = {
-    'age': age,
-    'sex': sex,
-    'cp': cp,
-    'chol': chol,
-    'thalach': thalach,
-    'oldpeak': oldpeak,
-    'ca': ca,
-    'slope': slope,
-    'restecg': restecg,
-    'fbs': fbs,
-    'exang': exang,
-    'thal': thal,
-    'trestbps': trestbps,
-    'thalch': thalch
+# Crear diccionario con los valores ingresados
+data = {
+    "age": age,
+    "trestbps": trestbps,
+    "chol": chol,
+    "thalch": thalach,
+    "oldpeak": oldpeak,
+    "ca": ca,
+    "sex": int(sex[0]),
+    "cp": int(cp[0]),
+    "thal": int(thall[0]),
+    "slope": int(slope[0]),
+    "restecg": int(restecg[0]),
+    "fbs": int(fbs[0]),
+    "exang": int(exang[0])
 }
 
-# Convertir el diccionario a un DataFrame
-input_df = pd.DataFrame([input_data])
+# Transformar los datos usando el vectorizador
+data_transformed = dv.transform([data])
 
-# Verificar las columnas de input_df
-st.write("Columnas del DataFrame de entrada:")
-st.write(input_df.columns)
-
-# Asegurarse de que solo contenga las columnas correctas
-# Comprobamos si las columnas en cat_cols + num_cols están en el DataFrame
-missing_cols = [col for col in cat_cols + num_cols if col not in input_df.columns]
-if missing_cols:
-    st.error(f"Faltan las siguientes columnas: {missing_cols}")
-else:
-    # Si no faltan columnas, aseguramos que se mantengan en el orden correcto
-    input_df = input_df[cat_cols + num_cols]
-
-    # Normalizar los datos de entrada de la misma manera que en el entrenamiento
-    input_df[num_cols] = scaler.transform(input_df[num_cols])
-
-    # Botón para actualizar y hacer la predicción
-    if st.button('Realizar Predicción'):
-        # Transformar los datos usando el vectorizador
-        input_dict = input_df.to_dict(orient='records')
-        input_transformed = dv.transform(input_dict)
-
-        # Realizar la predicción
-        prediction = svm_model.predict(input_transformed)
-        probability = svm_model.predict_proba(input_transformed)
-
-        # Mostrar el resultado
-        if prediction[0] == 1:
-            st.write("**Resultado**: El paciente tiene alta probabilidad de enfermedad cardíaca.")
-        else:
-            st.write("**Resultado**: El paciente tiene baja probabilidad de enfermedad cardíaca.")
-
-        # Mostrar la probabilidad (si se seleccionó 'probability=True' en el modelo SVM)
-        st.write(f"Probabilidad de enfermedad cardíaca: {probability[0][1]:.2f}")
+# Predecir cuando el usuario presione el botón
+if st.button("Predecir"):
+    prediction = model.predict([data_transformed[0]])[0]
+    st.write(f"Predicción de enfermedad cardíaca: {prediction}")
