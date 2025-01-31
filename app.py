@@ -29,37 +29,39 @@ thalch = st.number_input("Frecuencia cardíaca máxima (thalch)", min_value=71, 
 oldpeak = st.number_input("Depresión del ST inducida por el ejercicio (oldpeak)", min_value=0.0, max_value=6.2, value=1.0)
 ca = st.number_input("Número de vasos principales coloreados por fluoroscopia (ca)", min_value=0, max_value=4, value=0)
 
-# Convertir los valores de entrada a un diccionario
-input_data = {
-    'age': age,
-    'sex': 1 if sex == "Masculino" else 0,
-    'cp': int(cp),
-    'trestbps': trestbps,
-    'chol': chol,
-    'fbs': int(fbs),
-    'restecg': int(restecg),
-    'thalch': thalch,
-    'exang': int(exang),
-    'oldpeak': oldpeak,
-    'slope': int(slope),
-    'ca': ca,
-    'thal': int(thal)
-}
+# Botón para hacer la predicción
+if st.button('Hacer Predicción'):
+    # Convertir los valores de entrada a un diccionario
+    input_data = {
+        'age': age,
+        'sex': 1 if sex == "Masculino" else 0,
+        'cp': int(cp),
+        'trestbps': trestbps,
+        'chol': chol,
+        'fbs': int(fbs),
+        'restecg': int(restecg),
+        'thalch': thalch,
+        'exang': int(exang),
+        'oldpeak': oldpeak,
+        'slope': int(slope),
+        'ca': ca,
+        'thal': int(thal)
+    }
 
-# Transformar los datos de entrada utilizando el DictVectorizer
-input_dict = [input_data]
-X_new = dv.transform(input_dict)
+    # Transformar los datos de entrada utilizando el DictVectorizer
+    input_dict = [input_data]
+    X_new = dv.transform(input_dict)
 
-# Realizar la predicción
-prediction = model.predict(X_new)
-prediction_prob = model.predict_proba(X_new)
+    # Realizar la predicción
+    prediction = model.predict(X_new)
+    prediction_prob = model.predict_proba(X_new)
 
-# Mostrar el resultado de la predicción
-if prediction == 0:
-    st.write("La persona no tiene enfermedad cardíaca.")
-else:
-    st.write("La persona tiene enfermedad cardíaca.")
+    # Mostrar el resultado de la predicción
+    if prediction == 0:
+        st.write("La persona no tiene enfermedad cardíaca.")
+    else:
+        st.write("La persona tiene enfermedad cardíaca.")
 
-# Mostrar las probabilidades de cada clase
-st.write(f"Probabilidad de no tener enfermedad: {prediction_prob[0][0]:.2f}")
-st.write(f"Probabilidad de tener enfermedad: {prediction_prob[0][1]:.2f}")
+    # Mostrar las probabilidades de cada clase
+    st.write(f"Probabilidad de no tener enfermedad: {prediction_prob[0][0]:.2f}")
+    st.write(f"Probabilidad de tener enfermedad: {prediction_prob[0][1]:.2f}")
