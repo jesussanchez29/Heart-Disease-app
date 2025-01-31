@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 # Cargar el modelo y el Diccionario de características
-with open('models/heartDisease-model.pck', 'rb') as f:
+with open('heartDisease-model.pck', 'rb') as f:
     dv, model = pickle.load(f)
 
 # Título de la aplicación
