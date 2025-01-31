@@ -1,11 +1,10 @@
 import streamlit as st
 import pickle
 import numpy as np
-import pandas as pd
 
 # Cargar el modelo y el Diccionario de características
 with open('heartDisease-model.pck', 'rb') as f:
-    dv, model = pickle.load(f)
+    dv, model, scaler = pickle.load(f)
 
 # Título de la aplicación
 st.title("Predicción de Enfermedades Cardíacas")
@@ -15,12 +14,12 @@ age = st.slider("Edad", min_value=29, max_value=77, value=50)
 
 # Para las columnas categóricas, usamos selectbox
 sex = st.selectbox("Sexo", ["Masculino", "Femenino"])
-cp = st.selectbox("Tipo de Dolor en el Pecho", ["0", "1", "2", "3"])  # Categórica: cp
-fbs = st.selectbox("Nivel de Glucosa en ayunas (fbs)", ["0", "1"])  # Categórica: fbs
-restecg = st.selectbox("Resultado Electrocardiograma en reposo (restecg)", ["0", "1", "2"])  # Categórica: restecg
-exang = st.selectbox("Angina inducida por ejercicio (exang)", ["0", "1"])  # Categórica: exang
-slope = st.selectbox("Pendiente del ST inducida por el ejercicio (slope)", ["0", "1", "2"])  # Categórica: slope
-thal = st.selectbox("Condición de thal", ["3", "6", "7"])  # Categórica: thal
+cp = st.selectbox("Tipo de Dolor en el Pecho", ["0", "1", "2", "3"])
+fbs = st.selectbox("Nivel de Glucosa en ayunas (fbs)", ["0", "1"])
+restecg = st.selectbox("Resultado Electrocardiograma en reposo (restecg)", ["0", "1", "2"])
+exang = st.selectbox("Angina inducida por ejercicio (exang)", ["0", "1"])
+slope = st.selectbox("Pendiente del ST inducida por el ejercicio (slope)", ["0", "1", "2"])
+thal = st.selectbox("Condición de thal", ["3", "6", "7"])
 
 # Para las columnas numéricas, usamos number_input
 trestbps = st.number_input("Presión sanguínea en reposo (trestbps)", min_value=94, max_value=200, value=120)
@@ -51,15 +50,19 @@ if st.button('Hacer Predicción'):
     # Transformar los datos de entrada utilizando el DictVectorizer
     X_new = dv.transform([input_data])
 
-    # Realizar la predicción (probabilidad de tener enfermedad cardíaca)
-    y_pred_proba = model.predict_proba(X_new)[0][1]  # Probabilidad de tener enfermedad (clase 1)
+    # Escalar las características numéricas (aplicar el mismo scaler que durante el entrenamiento)
+    num_cols = ['trestbps', 'chol', 'thalch', 'oldpeak', 'ca', 'age']
+    num_indices = [i for i, name in enumerate(dv.get_feature_names_out()) if name in num_cols]  # Índices de las características numéricas
+    X_new[:, num_indices] = scaler.transform(X_new[:, num_indices])  # Escalar las características numéricas
+
+    # Realizar la predicción
+    y_pred_proba = model.predict_proba(X_new)[0][1]  # Probabilidad de enfermedad cardíaca
 
     # Mostrar el resultado de la predicción
-    if y_pred_proba >= 0.5:
+    if y_pred_proba > 0.5:
         st.write("La persona tiene enfermedad cardíaca.")
     else:
         st.write("La persona no tiene enfermedad cardíaca.")
 
-    # Mostrar las probabilidades de cada clase
+    # Mostrar la probabilidad de enfermedad
     st.write(f"Probabilidad de tener enfermedad: {y_pred_proba:.2f}")
-    st.write(f"Probabilidad de no tener enfermedad: {1 - y_pred_proba:.2f}")
