@@ -21,9 +21,11 @@ def predict_heart_disease(input_data):
     # Vectorizar los datos de entrada
     input_dict = input_df.to_dict(orient='records')
     input_vector = dv.transform(input_dict)
-    # Realizar la predicción
-    prediction = model.predict(input_vector)
-    return prediction[0]
+    # Realizar la predicción de probabilidades
+    probabilities = model.predict_proba(input_vector)[0]
+    # Realizar la predicción de la clase
+    prediction = model.predict(input_vector)[0]
+    return prediction, probabilities
 
 # Crear un formulario para ingresar los datos
 with st.form("input_form"):
@@ -67,11 +69,18 @@ with st.form("input_form"):
         }
 
         # Realizar la predicción
-        prediction = predict_heart_disease(input_data)
+        prediction, probabilities = predict_heart_disease(input_data)
 
         # Mostrar el resultado
         st.subheader("Resultado de la Predicción")
         st.write(f"La severidad predicha de la enfermedad cardíaca es: **{prediction}**")
+        
+        # Mostrar las probabilidades para cada clase
+        st.subheader("Probabilidades por clase")
+        for i, prob in enumerate(probabilities):
+            st.write(f"Clase {i}: {prob * 100:.2f}%")
+
+        # Explicación de las clases
         st.markdown("""
         **Nota:** La severidad varía de 0 a 4, donde:
         - 0: Sin enfermedad
