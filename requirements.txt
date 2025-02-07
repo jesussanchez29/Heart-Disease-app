@@ -1,8 +1,4 @@
 pandas
-ipykernel
-matplotlib
-seaborn
 streamlit
 scikit-learn
 numpy
-joblib
