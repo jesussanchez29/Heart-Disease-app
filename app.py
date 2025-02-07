@@ -10,7 +10,7 @@ with open('heartDisease-tree.pck', 'rb') as f:
 st.title("Predicción de Enfermedades Cardíacas")
 
 # Crear la interfaz de usuario para la entrada de datos
-age = st.slider("Edad", min_value=29, max_value=77, value=50)
+age = st.slider("Edad", min_value=18, max_value=80, value=50)
 
 # Para las columnas categóricas, usamos selectbox
 sex = st.selectbox("Sexo", ["Masculino", "Femenino"])
