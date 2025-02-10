@@ -3,7 +3,7 @@ import pickle
 import numpy as np
 
 # Cargar el modelo y el Diccionario de características
-with open('heartDisease-tree2.pck', 'rb') as f:
+with open('heartDisease-tree.pck', 'rb') as f:
     dv, model = pickle.load(f)
 
 # Título de la aplicación
