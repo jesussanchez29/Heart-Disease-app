@@ -54,7 +54,7 @@ if st.button('Hacer Predicción'):
     num_cols = ['trestbps', 'chol', 'thalch', 'oldpeak', 'ca', 'age']
     num_indices = [i for i, name in enumerate(dv.get_feature_names_out()) if name in num_cols]  # Índices de las características numéricas
     X_new[:, num_indices] = scaler.transform(X_new[:, num_indices])  # Escalar las características numéricas
-
+    st.write(X_new)
     # Realizar la predicción
     y_pred_proba = model.predict_proba(X_new)[0][1]  # Probabilidad de enfermedad cardíaca
     # Mostrar el resultado de la predicción
